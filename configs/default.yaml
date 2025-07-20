@@ -1,0 +1,62 @@
+# Default configuration for protein masked language model training
+
+# Random seed for reproducibility
+seed: 42
+
+# Device to use for training (auto, mps, cuda, cpu)
+device: "auto"
+
+# Data configuration
+data:
+  fasta_path: "data/seqs.fasta"
+  min_len: 20                    # Discard sequences shorter than this
+  max_len: 1024                  # Maximum sequence length (including CLS+SEP)
+  train_split: 0.95              # Fraction of data for training
+  to_upper: true                 # Convert sequences to uppercase
+  limit: null                    # For debugging: limit number of sequences (e.g., 500)
+
+# Vocabulary configuration
+vocab:
+  use_extended: false            # Only use 20 canonical amino acids
+
+# Masking configuration (BERT-style)
+masking:
+  prob: 0.15                     # Probability of masking each position
+  mask_ratio: 0.80               # Fraction of masked tokens to replace with [MASK]
+  random_ratio: 0.10             # Fraction to replace with random amino acid
+  # Remaining 10% kept unchanged
+
+# Model architecture
+model:
+  d_model: 512                   # Model dimension (increased from 256)
+  n_heads: 8                     # Number of attention heads (increased from 4)
+  n_layers: 8                    # Number of transformer layers (increased from 4)
+  d_ff: 2048                     # Feed-forward dimension (increased from 1024)
+  dropout: 0.1                   # Dropout rate
+  max_len: 1024                  # Maximum sequence length for positional encoding
+  layer_norm_eps: 0.00001        # Layer normalization epsilon
+  weight_tie: true               # Tie input/output embedding weights
+
+# Training configuration
+train:
+  batch_size: 8                  # Batch size (reduced for larger model)
+  num_workers: 2                 # Number of data loader workers
+  epochs: 10                     # Number of training epochs
+  lr: 0.0001                     # Learning rate (reduced for larger model)
+  warmup_steps: 1000             # Learning rate warmup steps (increased)
+  weight_decay: 0.01             # Weight decay for AdamW
+  grad_clip: 1.0                 # Gradient clipping threshold
+  log_interval: 50               # Log every N steps (more frequent)
+  amp: true                      # Use automatic mixed precision
+  save_every: 2                  # Save checkpoint every N epochs
+  resume: null                   # Path to checkpoint to resume from
+
+# Evaluation configuration
+eval:
+  batch_size: 16                 # Batch size for evaluation (reduced)
+
+# Logging configuration
+logging:
+  run_name: "large_mlm"          # Name for this run (updated for larger model)
+  output_dir: "checkpoints"      # Directory to save checkpoints
+  log_dir: "logs"                # Directory to save logs
